@@ -29,16 +29,7 @@ class _MyHomePageState extends State<MyHomePage> {
   int counter = 0;
   final items = <String>[];
 
-  final _refreshController =
-      RefreshController(initialRefresh: true);
-
-  void loadData() async {
-    String x = await Future<String>.delayed(
-        Duration(seconds: 2), () => (++counter).toString());
-    items.add(x);
-    setState(() {});
-    _refreshController.loadComplete();
-  }
+  final _refreshController = RefreshController(initialRefresh: true);
 
   @override
   Widget build(BuildContext context) {
@@ -71,8 +62,20 @@ class _MyHomePageState extends State<MyHomePage> {
           },
         ),
         controller: _refreshController,
-        onRefresh: loadData,
-        onLoading: loadData,
+        onRefresh: () async {
+          String x = await Future<String>.delayed(
+              Duration(seconds: 2), () => (++counter).toString());
+          items.add(x);
+          setState(() {});
+          _refreshController.refreshCompleted();
+        },
+        onLoading: () async {
+          String x = await Future<String>.delayed(
+              Duration(seconds: 2), () => (++counter).toString());
+          items.add(x);
+          setState(() {});
+          _refreshController.loadComplete();
+        },
         child: GridView.builder(
           itemBuilder: (c, i) {
             return Card(child: Center(child: Text(items[i])));
